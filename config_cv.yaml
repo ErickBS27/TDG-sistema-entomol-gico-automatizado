@@ -1,0 +1,125 @@
+# Configuración para Cross-Validation con YOLOv11x
+# Edita este archivo para personalizar el entrenamiento
+
+# ==================== CONFIGURACIÓN GENERAL ====================
+n_folds: 5                           # Número de folds para Cross-Validation
+random_seed: 42                      # Semilla para reproducibilidad
+model: yolo11x.pt                    # Modelo preentrenado (yolo11n/s/m/l/x.pt)
+
+# ==================== RUTAS ====================
+base_dir: d:\Proyecto escarabajos
+dataset_dir: dataset
+output_cv_dir: dataset_cv_5fold
+results_dir: resultados_cv_5fold
+
+# ==================== MAPEO DE CLASES ====================
+# Clase 0 está reservada para escarabajos generales
+# Las especies específicas se numeran automáticamente del 1 al 12
+class_names:
+  0: escarabajo_general
+  1: canthidium_01h
+  2: canthon_acutoides
+  3: canthon_cyanellus
+  4: canthon_juvencus
+  5: canthon_septemmaculatus
+  6: deltochilum_guildingii
+  7: dichotomius_tristis
+  8: ontophagus_bidentatus
+  9: ontophagus_lebasi
+  10: stenotothorax
+  11: tetraechma_lituratus
+  12: uroxys
+
+# ==================== HIPERPARÁMETROS DE ENTRENAMIENTO ====================
+training:
+  # Básico
+  epochs: 100                        # Número de épocas (100-300 recomendado)
+  imgsz: 640                         # Tamaño de imagen (640, 800, 1024)
+  batch: 16                          # Batch size (ajustar según GPU: 4, 8, 16, 32)
+  device: 0                          # GPU (0, 1, ...) o 'cpu'
+  workers: 8                         # Número de workers para carga de datos
+  
+  # Early Stopping
+  patience: 20                       # Épocas sin mejora antes de parar
+  
+  # Optimización
+  optimizer: AdamW                   # AdamW, SGD, Adam
+  lr0: 0.001                         # Learning rate inicial
+  lrf: 0.01                          # Learning rate final (fracción de lr0)
+  momentum: 0.937                    # Momentum (solo para SGD)
+  weight_decay: 0.0005               # Weight decay
+  
+  # Warmup
+  warmup_epochs: 3                   # Épocas de warmup
+  warmup_momentum: 0.8               # Momentum durante warmup
+  warmup_bias_lr: 0.1                # LR de bias durante warmup
+  
+  # Loss weights
+  box: 7.5                           # Peso de box loss
+  cls: 0.5                           # Peso de classification loss
+  dfl: 1.5                           # Peso de distribution focal loss
+  pose: 12.0                         # Peso de pose loss
+  kobj: 1.0                          # Peso de keypoint objectness
+  
+  # Regularización
+  label_smoothing: 0.0               # Label smoothing (0.0-0.1)
+  nbs: 64                            # Nominal batch size
+  
+  # Data Augmentation - Color
+  hsv_h: 0.015                       # Augmentación de Hue (0-1)
+  hsv_s: 0.7                         # Augmentación de Saturation (0-1)
+  hsv_v: 0.4                         # Augmentación de Value (0-1)
+  
+  # Data Augmentation - Geométrico
+  degrees: 0.0                       # Rotación de imagen (+/- deg)
+  translate: 0.1                     # Translación de imagen (+/- fracción)
+  scale: 0.5                         # Escala de imagen (+/- gain)
+  shear: 0.0                         # Shear de imagen (+/- deg)
+  perspective: 0.0                   # Perspectiva de imagen (0-0.001)
+  flipud: 0.0                        # Probabilidad de flip vertical
+  fliplr: 0.5                        # Probabilidad de flip horizontal
+  
+  # Data Augmentation - Avanzado
+  mosaic: 1.0                        # Probabilidad de mosaic augmentation
+  mixup: 0.0                         # Probabilidad de mixup augmentation
+  copy_paste: 0.0                    # Probabilidad de copy-paste augmentation
+  
+  # Guardar
+  save: true                         # Guardar checkpoints
+  save_period: -1                    # Guardar checkpoint cada N épocas (-1 = solo último)
+
+# ==================== CONFIGURACIÓN DE VALIDACIÓN ====================
+validation:
+  conf: 0.001                        # Confidence threshold para validación
+  iou: 0.6                           # IoU threshold para NMS
+  max_det: 300                       # Máximo número de detecciones por imagen
+
+# ==================== NOTAS Y RECOMENDACIONES ====================
+# 
+# BATCH SIZE:
+#   - RTX 3060 (12GB):  batch=16
+#   - RTX 3070 (8GB):   batch=12
+#   - RTX 3080 (10GB):  batch=16-24
+#   - RTX 4090 (24GB):  batch=32-48
+#   - CPU:              batch=4-8
+#
+# EPOCHS:
+#   - Prueba rápida:    epochs=10
+#   - Entrenamiento:    epochs=100-150
+#   - Producción:       epochs=200-300
+#
+# LEARNING RATE:
+#   - Transfer learning: lr0=0.001
+#   - From scratch:      lr0=0.01
+#   - Fine-tuning:       lr0=0.0001
+#
+# DATA AUGMENTATION:
+#   - Conservador:    degrees=0, scale=0.3, mosaic=0.5
+#   - Moderado (↑):   degrees=0, scale=0.5, mosaic=1.0
+#   - Agresivo:       degrees=10, scale=0.7, mosaic=1.0, mixup=0.1
+#
+# DEVICE:
+#   - Una GPU:        device=0
+#   - Multi-GPU:      device=[0,1,2,3]
+#   - CPU (lento):    device=cpu
+#

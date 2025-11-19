@@ -1,0 +1,15 @@
+# Configuración YOLOv11 para detección de escarabajos
+# 2 clases: Escarabajos generales (0) y Ontophagus_04h (1)
+
+# Rutas del dataset - Se actualizarán dinámicamente para cada fold
+path: D:\Proyecto escarabajos\ontophagus_04h\fold_1  # ruta base (se actualizará por fold)
+train: train/images
+val: val/images
+
+# Clases
+names:
+  0: escarabajos_generales
+  1: ontophagus_04h
+
+# Número de clases
+nc: 2
